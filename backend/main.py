@@ -9,18 +9,31 @@ app = FastAPI(title="Candidate Management API")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite's default port
+    allow_origins=["http://localhost:5173", 'https://thetasoftware-api.vercel.app'],  # Vite's default port
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Load mock data
-DATA_FILE = Path(__file__).parent.parent / "mock-data" / "candidates.json"
+# Try multiple paths for compatibility with local and deployed environments
+def get_data_file_path():
+    """Get the path to the candidates.json file, trying multiple locations"""
+    possible_paths = [
+        Path(__file__).parent / "mock-data" / "candidates.json",  # Backend directory (for deployment)
+        Path(__file__).parent.parent / "mock-data" / "candidates.json",  # Root directory (for local dev)
+    ]
+    
+    for path in possible_paths:
+        if path.exists():
+            return path
+    
+    raise FileNotFoundError(f"Could not find candidates.json in any of these locations: {[str(p) for p in possible_paths]}")
 
 def load_candidates():
     """Load candidates from JSON file"""
-    with open(DATA_FILE, "r") as f:
+    data_file = get_data_file_path()
+    with open(data_file, "r") as f:
         data = json.load(f)
     return data["candidates"]
 

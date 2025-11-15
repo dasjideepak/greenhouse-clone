@@ -30,6 +30,11 @@ export const CandidateList: React.FC<CandidateListProps> = ({
   const prevFullTextSearchRef = useRef(fullTextSearch);
   const prevSearchValueRef = useRef(searchValue);
 
+  // client-side pagination
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const paginatedCandidates = candidates.slice(startIndex, endIndex);
+
   useEffect(() => {
     // Skip API call if only fullTextSearch changed and there's no search value
     const onlyFullTextSearchChanged =
@@ -102,8 +107,6 @@ export const CandidateList: React.FC<CandidateListProps> = ({
           params.append('full_text_search', 'true');
         }
       }
-      params.append('page', currentPage.toString());
-      params.append('per_page', perPage.toString());
 
       if (sort) {
         params.append('sort', sort);
@@ -166,8 +169,6 @@ export const CandidateList: React.FC<CandidateListProps> = ({
     fetchCandidates();
   }, [
     searchValue,
-    currentPage,
-    perPage,
     selectedFilters,
     onTotalCandidatesChange,
     fullTextSearch,
@@ -221,7 +222,7 @@ export const CandidateList: React.FC<CandidateListProps> = ({
 
       {/* Candidate Cards */}
       <div>
-        {candidates?.map((candidate) => (
+        {paginatedCandidates?.map((candidate) => (
           <CandidateCard key={candidate.id} candidate={candidate} />
         ))}
       </div>

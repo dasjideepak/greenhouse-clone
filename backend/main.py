@@ -34,8 +34,6 @@ def read_root():
 @app.get("/api/candidates")
 def get_candidates(
     search: Optional[str] = Query(None, description="Search by name, position, or company"),
-    page: int = Query(1, ge=1, description="Page number"),
-    per_page: int = Query(5, ge=1, le=100, description="Items per page"),
     application_type: Optional[List[str]] = Query(None, description="Filter by application type (active, archived)"),
     job_id: Optional[List[str]] = Query(None, description="Filter by job ID"),
     source: Optional[List[str]] = Query(None, description="Filter by source"),
@@ -47,9 +45,7 @@ def get_candidates(
     """
     Get filtered candidates
 
-    Implement:
-    1. Filter by search term (if provided)
-    2. Return all matching candidates
+    Returns all matching candidates
     """
 
     # Step 1: Load all candidates
@@ -152,18 +148,11 @@ def get_candidates(
             reverse=True
         )
 
-    # Step 4: Calculate pagination and return data
     total = len(filtered_candidates)
-    start = (page - 1) * per_page
-    end = start + per_page
-    paginated_candidates = filtered_candidates[start:end]
 
     return {
-        "candidates": paginated_candidates,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": (total + per_page - 1) // per_page
+        "candidates": filtered_candidates,
+        "total": total
     }
 
 

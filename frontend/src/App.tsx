@@ -1,14 +1,20 @@
-import { useState } from 'react'
-import './App.css'
-import { Sidebar } from './components/Sidebar'
+import { useState } from 'react';
+import './App.css';
+import { Sidebar } from './components/Sidebar';
+import { Header } from './components/Header';
 
 function App() {
-  const [searchValue, setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState('');
 
   return (
     <div className="min-h-screen bg-[#f7f8f7]">
+      {/* Header */}
+      <Header />
+
       {/* Page Title */}
-      <h1 className="text-[34.59px] font-normal text-[#15372c] px-6 pt-4 pb-3 leading-[46.67px]">All Candidates</h1>
+      <h1 className="text-[34.59px] font-normal text-[#15372c] px-6 pt-4 pb-3 leading-[46.67px]">
+        All Candidates
+      </h1>
 
       <div className="flex">
         {/* Sidebar - Pre-built component with search, toggle, dropdown */}
@@ -22,7 +28,7 @@ function App() {
         </main>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

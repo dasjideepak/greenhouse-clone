@@ -1,13 +1,37 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { SearchInput } from './SearchInput';
+import { FilterSection } from './FilterSection';
+import { filterSections } from '../data/filterConfig';
 
 interface SidebarProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ searchValue, onSearchChange }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  searchValue,
+  onSearchChange,
+}) => {
   const [fullTextSearch, setFullTextSearch] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<
+    Record<string, boolean>
+  >({});
+
+  const handleFilterChange = useCallback((key: string, checked: boolean) => {
+    setSelectedFilters((prev) => {
+      if (checked) {
+        return { ...prev, [key]: true };
+      } else {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      }
+    });
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setSelectedFilters({});
+  }, []);
 
   return (
     <aside className="w-[248px] bg-[#f7f8f7] min-h-screen px-6 pt-2 pb-6">
@@ -26,22 +50,43 @@ export const Sidebar: React.FC<SidebarProps> = ({ searchValue, onSearchChange })
               className="sr-only peer"
             />
             <div className="w-[50px] h-[25px] bg-[#ccd4d1] rounded-full peer peer-checked:bg-[#047957] peer-focus:ring-2 peer-focus:ring-[#047957]/20 transition-colors duration-200 ease-in-out">
-              <div className={`absolute left-0 top-0 w-[25px] h-[25px] bg-white border-[3px] rounded-full transition-transform duration-200 ease-in-out ${fullTextSearch ? 'translate-x-[25px] border-[#047957]' : 'translate-x-0 border-[#ccd4d1]'}`}></div>
+              <div
+                className={`absolute left-0 top-0 w-[25px] h-[25px] bg-white border-[3px] rounded-full transition-transform duration-200 ease-in-out ${
+                  fullTextSearch
+                    ? 'translate-x-[25px] border-[#047957]'
+                    : 'translate-x-0 border-[#ccd4d1]'
+                }`}
+              ></div>
             </div>
           </label>
-          <label htmlFor="fullTextSearch" className="text-[13px] font-medium text-[#15372c] cursor-pointer leading-[19.5px]">
+          <label
+            htmlFor="fullTextSearch"
+            className="text-[13px] font-medium text-[#15372c] cursor-pointer leading-[19.5px]"
+          >
             Full Text Search
           </label>
         </div>
-        <p className="text-[11.6px] text-[#909090] font-light leading-[12px] mt-1">(Includes resumes and notes)</p>
+        <p className="text-[11.6px] text-[#909090] font-light leading-[12px] mt-1">
+          (Includes resumes and notes)
+        </p>
       </div>
 
       {/* Sort Dropdown (visual only) */}
       <div className="mt-4">
         <div className="w-full h-[36px] px-3 flex items-center justify-between border border-[#e1e1e1] bg-white rounded text-[14px] text-[#333333]">
           <span className="truncate">Last Activity (new to old)</span>
-          <svg className="w-3.5 h-3.5 text-[#909090] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <svg
+            className="w-3.5 h-3.5 text-[#909090] shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </div>
       </div>
@@ -58,12 +103,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ searchValue, onSearchChange })
         {/* - Pipeline Tasks */}
         {/* - Education */}
         {/* See CollapsibleSection.tsx for a starting point */}
+        {filterSections.map((section) => (
+          <FilterSection
+            key={section.title}
+            section={section}
+            selectedFilters={selectedFilters}
+            onFilterChange={handleFilterChange}
+          />
+        ))}
       </div>
 
       {/* Reset Filters Button */}
-      <button className="mt-6 w-full px-4 py-2 text-[#3574d6] text-[13.9px] font-light flex items-center justify-center gap-2 hover:underline">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      <button
+        onClick={handleResetFilters}
+        disabled={Object.keys(selectedFilters).length === 0}
+        className="mt-6 w-full px-4 py-2 text-[#3574d6] text-[13.9px] font-light flex items-center justify-center gap-2 hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:no-underline"
+      >
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
         <span>Reset Filters</span>
       </button>
